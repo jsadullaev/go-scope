@@ -1,0 +1,130 @@
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Save, X, Calendar, MapPin, Camera } from "lucide-react";
+
+export default function SessionForm({ session, equipment, locations, onSave, onCancel }) {
+  const [formData, setFormData] = useState(session || {
+    title: "",
+    location_name: "",
+    latitude: null,
+    longitude: null,
+    planned_date: "",
+    start_time: "",
+    end_time: "",
+    target_objects: [],
+    equipment_ids: [],
+    session_type: "astrophotography",
+    notes: "",
+    weather_backup_plan: ""
+  });
+
+  const [targetInput, setTargetInput] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState(
+    locations.find(loc => loc.name === formData.location_name) || null
+  );
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      ...formData,
+      target_objects: formData.target_objects || []
+    });
+  };
+
+  const addTarget = () => {
+    if (targetInput.trim() && !formData.target_objects?.includes(targetInput.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        target_objects: [...(prev.target_objects || []), targetInput.trim()]
+      }));
+      setTargetInput("");
+    }
+  };
+
+  const removeTarget = (target) => {
+    setFormData(prev => ({
+      ...prev,
+      target_objects: prev.target_objects?.filter(t => t !== target) || []
+    }));
+  };
+
+  const handleLocationChange = (locationId) => {
+    const location = locations.find(loc => loc.id === locationId);
+    if (location) {
+      setSelectedLocation(location);
+      setFormData(prev => ({
+        ...prev,
+        location_name: location.name,
+        latitude: location.latitude,
+        longitude: location.longitude
+      }));
+    }
+  };
+
+  const handleEquipmentToggle = (equipmentId) => {
+    setFormData(prev => ({
+      ...prev,
+      equipment_ids: prev.equipment_ids?.includes(equipmentId)
+        ? prev.equipment_ids.filter(id => id !== equipmentId)
+        : [...(prev.equipment_ids || []), equipmentId]
+    }));
+  };
+
+  return (
+    <Card className="glass-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-indigo-400" />
+          {session ? "Edit Session" : "Plan New Session"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Session Title</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="e.g., Andromeda Galaxy Session"
+                className="bg-slate-800/50 border-slate-600"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="session_type">Session Type</Label>
+              <Select 
+                value={formData.session_type} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, session_type: value }))}
+              >
+                <SelectTrigger className="bg-slate-800/50 border-slate-600">
+                  <SelectValue placeholder="Select session type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="astrophotography">Astrophotography</SelectItem>
+                  <SelectItem value="visual_observation">Visual Observation</SelectItem>
+                  <SelectItem value="planetary">Planetary</SelectItem>
+                  <SelectItem value="deep_sky">Deep Sky</SelectItem>
+                  <SelectItem value="milky_way">Milky Way</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="planned_date">Date</Label>
+              <Input
+                id="planned_date"
+ 
