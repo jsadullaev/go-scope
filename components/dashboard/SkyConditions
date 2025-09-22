@@ -1,0 +1,130 @@
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Moon, 
+  Satellite, 
+  Mountain, 
+  Eye, 
+  Lightbulb,
+  Clock
+} from "lucide-react";
+import { motion } from "framer-motion";
+
+export default function SkyConditions({ skyData }) {
+  const getMoonPhaseIcon = (phase) => {
+    return <Moon className="w-5 h-5 text-yellow-300" />;
+  };
+
+  const getVisibilityColor = (value) => {
+    if (value > 8) return "text-emerald-400";
+    if (value > 6) return "text-yellow-400";
+    return "text-orange-400";
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mountain className="w-5 h-5 text-purple-400" />
+            Sky Conditions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Moon Information */}
+          <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl p-4 border border-yellow-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                {getMoonPhaseIcon(skyData?.moon?.phase)}
+                <span className="font-semibold text-yellow-200">Moon Phase</span>
+              </div>
+              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                {skyData?.moon?.illumination || 0}% Illuminated
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-slate-400">Phase: </span>
+                <span className="text-yellow-200 capitalize">{skyData?.moon?.phase || "Loading..."}</span>
+              </div>
+              <div>
+                <span className="text-slate-400">Rise: </span>
+                <span className="text-yellow-200">{skyData?.moon?.rise_time || "--:--"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Sky Quality */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="w-4 h-4 text-orange-400" />
+                <span className="font-semibold text-slate-200">Light Pollution</span>
+              </div>
+              <div className="text-2xl font-bold text-orange-400 mb-1">
+                Bortle {skyData?.sky?.light_pollution || "?"}
+              </div>
+              <div className="text-xs text-slate-400">
+                {skyData?.sky?.light_pollution <= 3 ? "Dark sky site" :
+                 skyData?.sky?.light_pollution <= 5 ? "Suburban sky" :
+                 "Urban sky"}
+              </div>
+            </div>
+
+            <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+              <div className="flex items-center gap-2 mb-3">
+                <Eye className="w-4 h-4 text-emerald-400" />
+                <span className="font-semibold text-slate-200">Seeing</span>
+              </div>
+              <div className={`text-2xl font-bold mb-1 ${getVisibilityColor(parseFloat(skyData?.sky?.limiting_magnitude) || 0)}`}>
+                {skyData?.sky?.seeing || "Unknown"}
+              </div>
+              <div className="text-xs text-slate-400">
+                Atmospheric stability
+              </div>
+            </div>
+          </div>
+
+          {/* Satellite Activity */}
+          <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl p-4 border border-cyan-500/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Satellite className="w-5 h-5 text-cyan-400" />
+                <span className="font-semibold text-cyan-200">Satellite Activity</span>
+              </div>
+              <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
+                {skyData?.satellites?.activity_level || "Low"}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-slate-400">Visible Passes: </span>
+                <span className="text-cyan-200">{skyData?.satellites?.visible_passes || 0}</span>
+              </div>
+              <div>
+                <span className="text-slate-400">ISS Pass: </span>
+                <span className="text-cyan-200">{skyData?.satellites?.iss_pass || "None"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Transparency & Limiting Magnitude */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+              <div className="text-sm text-slate-400 mb-1">Transparency</div>
+              <div className="text-lg font-bold text-purple-400">
+                {skyData?.sky?.transparency || "Good"}
+              </div>
+            </div>
+            <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30">
+              <div className="text-sm text-slate-400 mb-1">Limiting Magnitude</div>
+              <div className="text-lg font-bold text-purple-400">
+                {skyData?.sky?.limiting_magnitude || "6.0"}
+              </div>
+            </div>
+ 
